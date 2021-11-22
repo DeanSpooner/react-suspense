@@ -1,6 +1,5 @@
 // useTransition for improved loading states
-// 💯 avoid flash of loading content
-// http://localhost:3000/isolated/final/03.extra-2.js
+// http://localhost:3000/isolated/exercise/03.js
 
 import * as React from 'react';
 import {
@@ -24,11 +23,7 @@ function PokemonInfo({pokemonResource}) {
   );
 }
 
-const SUSPENSE_CONFIG = {
-  timeoutMs: 4000,
-  busyDelayMs: 300,
-  busyMinDurationMs: 700,
-};
+const SUSPENSE_CONFIG = {timeoutMs: 4000};
 
 function createPokemonResource(pokemonName) {
   let delay = 1500;

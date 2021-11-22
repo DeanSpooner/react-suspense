@@ -1,18 +1,18 @@
 // useTransition for improved loading states
 // http://localhost:3000/isolated/exercise/03.js
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   fetchPokemon,
   PokemonInfoFallback,
   PokemonForm,
   PokemonDataView,
   PokemonErrorBoundary,
-} from '../pokemon'
-import {createResource} from '../utils'
+} from '../pokemon';
+import {createResource} from '../utils';
 
 function PokemonInfo({pokemonResource}) {
-  const pokemon = pokemonResource.read()
+  const pokemon = pokemonResource.read();
   return (
     <div>
       <div className="pokemon-info__img-wrapper">
@@ -20,18 +20,20 @@ function PokemonInfo({pokemonResource}) {
       </div>
       <PokemonDataView pokemon={pokemon} />
     </div>
-  )
+  );
 }
 
 // 🐨 create a SUSPENSE_CONFIG variable right here and configure timeoutMs to
 // whatever feels right to you, then try it out and tweak it until you're happy
 // with the experience.
 
+const SUSPENSE_CONFIG = {timeoutMs: 4000};
+
 function createPokemonResource(pokemonName) {
   // 🦉 once you've finished the exercise, play around with the delay...
   // the second parameter to fetchPokemon is a delay so you can play around
   // with different timings
-  let delay = 1500
+  let delay = 1500;
   // try a few of these fetch times:
   // shows busy indicator
   // delay = 450
@@ -42,30 +44,33 @@ function createPokemonResource(pokemonName) {
   // shows busy indicator for a split second
   // 💯 this is what the extra credit improves
   // delay = 200
-  return createResource(fetchPokemon(pokemonName, delay))
+  return createResource(fetchPokemon(pokemonName, delay));
 }
 
 function App() {
-  const [pokemonName, setPokemonName] = React.useState('')
+  const [pokemonName, setPokemonName] = React.useState('');
   // 🐨 add a useTransition hook here
-  const [pokemonResource, setPokemonResource] = React.useState(null)
+  const [startTransition, isPending] = React.useTransition(SUSPENSE_CONFIG);
+  const [pokemonResource, setPokemonResource] = React.useState(null);
 
   React.useEffect(() => {
     if (!pokemonName) {
-      setPokemonResource(null)
-      return
+      setPokemonResource(null);
+      return;
     }
     // 🐨 wrap this next line in a startTransition call
-    setPokemonResource(createPokemonResource(pokemonName))
+    startTransition(() => {
+      setPokemonResource(createPokemonResource(pokemonName));
+    });
     // 🐨 add startTransition to the deps list here
-  }, [pokemonName])
+  }, [pokemonName, startTransition]);
 
   function handleSubmit(newPokemonName) {
-    setPokemonName(newPokemonName)
+    setPokemonName(newPokemonName);
   }
 
   function handleReset() {
-    setPokemonName('')
+    setPokemonName('');
   }
 
   return (
@@ -76,7 +81,7 @@ function App() {
         🐨 add inline styles here to set the opacity to 0.6 if the
         useTransition above is pending
       */}
-      <div className="pokemon-info">
+      <div style={{opacity: isPending ? 0.6 : 1}} className="pokemon-info">
         {pokemonResource ? (
           <PokemonErrorBoundary
             onReset={handleReset}
@@ -93,7 +98,7 @@ function App() {
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
