@@ -1,7 +1,7 @@
 // Suspense with a custom hook
 // http://localhost:3000/isolated/exercise/06.js
 
-import * as React from 'react'
+import * as React from 'react';
 import {
   fetchPokemon,
   getImageUrlForPokemon,
@@ -9,11 +9,11 @@ import {
   PokemonForm,
   PokemonDataView,
   PokemonErrorBoundary,
-} from '../pokemon'
-import {createResource, preloadImage} from '../utils'
+} from '../pokemon';
+import {createResource, preloadImage} from '../utils';
 
 function PokemonInfo({pokemonResource}) {
-  const pokemon = pokemonResource.data.read()
+  const pokemon = pokemonResource.data.read();
   return (
     <div>
       <div className="pokemon-info__img-wrapper">
@@ -21,58 +21,67 @@ function PokemonInfo({pokemonResource}) {
       </div>
       <PokemonDataView pokemon={pokemon} />
     </div>
-  )
+  );
 }
 
 const SUSPENSE_CONFIG = {
   timeoutMs: 4000,
   busyDelayMs: 300,
   busyMinDurationMs: 700,
-}
+};
 
-const pokemonResourceCache = {}
+const pokemonResourceCache = {};
 
 function getPokemonResource(name) {
-  const lowerName = name.toLowerCase()
-  let resource = pokemonResourceCache[lowerName]
+  const lowerName = name.toLowerCase();
+  let resource = pokemonResourceCache[lowerName];
   if (!resource) {
-    resource = createPokemonResource(lowerName)
-    pokemonResourceCache[lowerName] = resource
+    resource = createPokemonResource(lowerName);
+    pokemonResourceCache[lowerName] = resource;
   }
-  return resource
+  return resource;
 }
 
 function createPokemonResource(pokemonName) {
-  const data = createResource(fetchPokemon(pokemonName))
-  const image = createResource(preloadImage(getImageUrlForPokemon(pokemonName)))
-  return {data, image}
+  const data = createResource(fetchPokemon(pokemonName));
+  const image = createResource(
+    preloadImage(getImageUrlForPokemon(pokemonName)),
+  );
+  return {data, image};
 }
 
-function App() {
-  const [pokemonName, setPokemonName] = React.useState('')
-  // 🐨 move these two lines to a custom hook called usePokemonResource
-  const [startTransition, isPending] = React.useTransition(SUSPENSE_CONFIG)
-  const [pokemonResource, setPokemonResource] = React.useState(null)
-  // 🐨 call usePokemonResource with the pokemonName.
-  //    It should return both the pokemonResource and isPending
+const usePokemonResource = pokemonName => {
+  const [startTransition, isPending] = React.useTransition(SUSPENSE_CONFIG);
+  const [pokemonResource, setPokemonResource] = React.useState(null);
 
-  // 🐨 move this useEffect call your custom usePokemonResource hook
   React.useEffect(() => {
     if (!pokemonName) {
-      setPokemonResource(null)
-      return
+      setPokemonResource(null);
+      return;
     }
     startTransition(() => {
-      setPokemonResource(getPokemonResource(pokemonName))
-    })
-  }, [pokemonName, startTransition])
+      setPokemonResource(getPokemonResource(pokemonName));
+    });
+  }, [pokemonName, startTransition]);
+
+  return [pokemonResource, isPending];
+};
+
+function App() {
+  const [pokemonName, setPokemonName] = React.useState('');
+  // 🐨 move these two lines to a custom hook called usePokemonResource
+  // 🐨 call usePokemonResource with the pokemonName.
+  //    It should return both the pokemonResource and isPending
+  const [pokemonResource, isPending] = usePokemonResource(pokemonName);
+
+  // 🐨 move this useEffect call your custom usePokemonResource hook
 
   function handleSubmit(newPokemonName) {
-    setPokemonName(newPokemonName)
+    setPokemonName(newPokemonName);
   }
 
   function handleReset() {
-    setPokemonName('')
+    setPokemonName('');
   }
 
   return (
@@ -96,7 +105,7 @@ function App() {
         )}
       </div>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
